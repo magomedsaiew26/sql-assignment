@@ -6,11 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Models
 {
-    public class Customer
-    {
-        //TODO: Setup model
-        public int Id { get; set; }
-        public string Name { get; set; }
-
-    }
+    public record Customer(int Id, string FirstName, string LastName, 
+        string Country, string PostalCode, 
+        string Phonenumber, string Email);
 }
