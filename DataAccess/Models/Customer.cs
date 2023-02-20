@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Models
 {
-    public class Employee
+    public class Customer
     {
-        //TODO: Endpoints
+        //TODO: Setup model
+        public int Id { get; set; }
+        public string Name { get; set; }
+
     }
 }
