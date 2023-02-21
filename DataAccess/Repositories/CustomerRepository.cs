@@ -111,9 +111,44 @@ namespace DataAccess.Repositories
             return Task.FromResult(result);
         }
 
-        public Customer Get(int id)
+        public Task<Customer> Get(int id)
         {
-            throw new NotImplementedException();
+            IList<Customer> result = new List<Customer>();
+
+            SelectQuery($"SELECT * FROM Chinook.dbo.Customer WHERE CustomerId = {id};", (reader) =>
+            {
+                while (reader.Read())
+                {
+                    var customer = new Customer
+                    {
+                        Id = reader.GetInt32(0),
+                        FirstName = reader.GetString(1),
+                        LastName = reader.GetString(2)
+                    };
+
+                    if (!reader.IsDBNull(7))
+                        customer.Country = reader.GetString(7);
+                    if (!reader.IsDBNull(8))
+                        customer.PostalCode = reader.GetString(8);
+                    if (!reader.IsDBNull(9))
+                        customer.Phonenumber = reader.GetString(9);
+                    if (!reader.IsDBNull(11))
+                        customer.Email = reader.GetString(11);
+
+                    result.Add(customer);
+                }
+
+                return true;
+            });
+
+            if (result.Count > 1)
+                Console.WriteLine("Recieved multiple results from a single id");
+            if (result.Count == 0)
+            {
+                Console.WriteLine("No results!");
+                return Task.FromResult(default(Customer));
+            }
+            return Task.FromResult(result[0]);
         }
 
         public Customer Get(string name)
