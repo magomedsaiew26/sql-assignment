@@ -1,6 +1,7 @@
 ﻿
 using DataAccess.Models;
 using Microsoft.Data.SqlClient;
+using System.Diagnostics.Metrics;
 
 namespace DataAccess.Repositories
 {
@@ -23,54 +24,91 @@ namespace DataAccess.Repositories
             }
         }
 
-        public Task<IList<Customer>> GetAll()
+        private void SelectQuery(string query, System.Predicate<SqlDataReader> predicate)
         {
-            IList<Customer> result = new List<Customer>();
-
             //setup connection
             using (SqlConnection connection = new SqlConnection(ConncectionString))
             {
                 connection.Open();
-                string sqlString = "SELECT * FROM Chinook.dbo.Customer;";
+
                 //create command
                 using (SqlCommand command = connection.CreateCommand())
                 {
-                    command.CommandText = sqlString; //set command
-                    
+                    command.CommandText = query; //set command
 
                     //reads the result of the command
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        while (reader.Read())
-                        {
-                            var customer = new Customer
-                            {
-                                Id = reader.GetInt32(0),
-                                FirstName = reader.GetString(1),
-                                LastName = reader.GetString(2),
-                                Country = reader.GetString(7)
-                            };
-                            if(!reader.IsDBNull(8))
-                                customer.PostalCode = reader.GetString(8);
-                            if (!reader.IsDBNull(9))
-                                customer.Phonenumber = reader.GetString(9);
-                            if (!reader.IsDBNull(11))
-                                customer.Email = reader.GetString(11);
-
-                            result.Add(customer);
-                        }
+                        predicate?.Invoke(reader);
                     }
                 }
             }
-
-            var tsk = Task.FromResult(result);
-
-            return tsk;
         }
 
-        public IList<Customer> GetRange(int offset, int limit)
+        public Task<IList<Customer>> GetAll()
         {
-            throw new NotImplementedException();
+            IList<Customer> result = new List<Customer>();
+
+            SelectQuery("SELECT * FROM Chinook.dbo.Customer;", (reader) =>
+            {
+                while (reader.Read())
+                {
+                    var customer = new Customer
+                    {
+                        Id = reader.GetInt32(0),
+                        FirstName = reader.GetString(1),
+                        LastName = reader.GetString(2)
+                    };
+
+                    if(!reader.IsDBNull(7))
+                        customer.Country = reader.GetString(7);
+                    if (!reader.IsDBNull(8))
+                        customer.PostalCode= reader.GetString(8);
+                    if (!reader.IsDBNull(9))
+                        customer.Phonenumber= reader.GetString(9);
+                    if (!reader.IsDBNull(11))
+                        customer.Email= reader.GetString(11);
+
+                    result.Add(customer);
+                }
+
+                return true;
+            });
+
+            return Task.FromResult(result);
+        }
+
+        public Task<IList<Customer>> GetRange(int offset, int limit)
+        {
+            IList<Customer> result = new List<Customer>();
+
+            SelectQuery($"SELECT * FROM Chinook.dbo.Customer ORDER BY CustomerId OFFSET {offset} ROWS FETCH NEXT {limit} ROWS ONLY;", (reader) =>
+            {
+                while (reader.Read())
+                {
+                    var customer = new Customer
+                    {
+                        Id = reader.GetInt32(0),
+                        FirstName = reader.GetString(1),
+                        LastName = reader.GetString(2)
+                    };
+
+                    if (!reader.IsDBNull(7))
+                        customer.Country = reader.GetString(7);
+                    if (!reader.IsDBNull(8))
+                        customer.PostalCode = reader.GetString(8);
+                    if (!reader.IsDBNull(9))
+                        customer.Phonenumber = reader.GetString(9);
+                    if (!reader.IsDBNull(11))
+                        customer.Email = reader.GetString(11);
+
+                    result.Add(customer);
+                }
+
+                return true;
+            });
+
+            return Task.FromResult(result);
         }
 
         public Customer Get(int id)
