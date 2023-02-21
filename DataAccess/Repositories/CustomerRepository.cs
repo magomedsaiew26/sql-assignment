@@ -1,6 +1,8 @@
 ﻿
 using DataAccess.Models;
 using Microsoft.Data.SqlClient;
+using System.Numerics;
+using System.Text;
 
 namespace DataAccess.Repositories
 {
@@ -72,15 +74,115 @@ namespace DataAccess.Repositories
         public Customer Get(string name)
         {
             throw new NotImplementedException();
-        }        
+        }
 
         public bool Add(Customer customer)
         {
-            throw new NotImplementedException();
-        }        
+            // 5. Add a new customer to the database
+            //setup connection
+            using (SqlConnection connection = new SqlConnection(ConncectionString))
+            {
+                connection.Open();
+
+                StringBuilder sqlStringql = new StringBuilder("INSERT INTO Customer(FirstName, LastName, Company, Address, City, State, Country, ");
+
+
+                sqlString.Append("Postal Code, Phine, Fax, Email, SupportRepId) VALUES(";
+                //create command
+                sqlString.Append(customer.FirstName);
+                customer.Append(", ");
+                sqlString.Append(customer.LastName);
+                customer.Append(", ");
+                sqlString.Append(customer.Country);
+                customer.Append(", "););
+                sqlString.Append(customer.PostalCode);
+                customer.Append(", ");
+                sqlString.Append(customer.Phone);
+                customer.Append(", ");
+                sqlString.Append(customer.Email);
+                customer.Append(")");
+
+
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = sbSQL.ToString(); //set command
+
+                    // Insert the customer into the database 
+                    IAsyncResult asyncres = command.BeginExecuteNonQuery(null, null);
+                }
+            }
+
+            // throw new NotImplementedException();
+        }
 
         public bool Update(int id, Customer updatedCustomer)
         {
+            String update;
+            // 6. Update an existing customer to the database
+            using (SqlConnection connection = new SqlConnection(ConncectionString))
+            {
+                connection.Open();
+
+                // build command
+
+                StringBuilder sqlString = new StringBuilder("UPDATE Customer SET ");
+
+                sqlString.Append("FirstName = ");
+                update = "'" + updatedCustomer.FirstName + "'";
+                sqlString.Append(update);
+
+                sqlString.Append("LastName = ");
+                update = "'" + updatedCustomer.LastName + "'";
+                sqlString.Append(update);
+
+                sqlString.Append("Country = ");
+                update = "'" + updatedCustomer.Country + "'";
+                sqlString.Append(update);
+
+                sqlString.Append("PostalCode = ");
+                update = "'" + updatedCustomer.PostalCode + "'";
+                sqlString.Append(update);
+
+                sqlString.Append("Phone = ");
+                update = "'" + updatedCustomer.Phonenumber + "'";
+                sqlString.Append(update);
+
+                sqlString.Append("Email = ");
+                update = "'" + updatedCustomer.Email + "'";
+                sqlString.Append(update);
+
+                sqlString.Append("WHERE CustomerId = ");
+                sqlString.Append(updatedCustomer.Id.ToString());
+
+
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = sqlString.ToString(); //set command
+
+                    // Insert the customer into the database 
+                    IAsyncResult asyncres = command.BeginExecuteNonQuery(null, null);
+                }
+
+ //               throw new NotImplementedException();
+        }
+
+
+        public IList<String, int> CustomersByCountry()
+        {
+            // 7. Return the number of customers in each country, ordered high to low
+
+            throw new NotImplementedException();
+        }
+        public IList<Customer> HighestSpenders(int n)
+        {
+            // 8. Return a list of the n highest spenders 
+
+            throw new NotImplementedException();
+        }
+        public String MostPopularGenre(int id)
+        {
+            // 9. For a given customer, return the most pupo\ular genre (genre with most tracks) 
+
             throw new NotImplementedException();
         }
     }
