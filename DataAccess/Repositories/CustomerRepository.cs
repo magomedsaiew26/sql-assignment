@@ -8,19 +8,22 @@ namespace DataAccess.Repositories
     {
         //TODO: GetAll, Get, GetLimited, Delete, Update...
 
+        private static string ServerName => "N-NO-01-01-1467\\SQLEXPRESS02";
+        private static string DatabaseName = "Chinook";
         private static string ConncectionString
         {
             get
             {
                 SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
-                builder.DataSource = "";
+                builder.DataSource = ServerName;
+                builder.InitialCatalog = DatabaseName;
                 builder.IntegratedSecurity = true;
                 builder.TrustServerCertificate = true;
                 return builder.ConnectionString;
             }
         }
 
-        public IList<Customer> GetAll()
+        public Task<IList<Customer>> GetAll()
         {
             IList<Customer> result = new List<Customer>();
 
@@ -28,35 +31,41 @@ namespace DataAccess.Repositories
             using (SqlConnection connection = new SqlConnection(ConncectionString))
             {
                 connection.Open();
-
-                string sqlString = "SELECT * FROM Customer";
-
+                string sqlString = "SELECT * FROM Chinook.dbo.Customer;";
                 //create command
                 using (SqlCommand command = connection.CreateCommand())
                 {
                     command.CommandText = sqlString; //set command
+                    
 
                     //reads the result of the command
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            result.Add(new Customer
+                            var customer = new Customer
                             {
                                 Id = reader.GetInt32(0),
                                 FirstName = reader.GetString(1),
                                 LastName = reader.GetString(2),
-                                Country = reader.GetString(3),
-                                PostalCode = reader.GetString(4),
-                                Phonenumber = reader.GetString(5),
-                                Email = reader.GetString(6)
-                            });
+                                Country = reader.GetString(7)
+                            };
+                            if(!reader.IsDBNull(8))
+                                customer.PostalCode = reader.GetString(8);
+                            if (!reader.IsDBNull(9))
+                                customer.Phonenumber = reader.GetString(9);
+                            if (!reader.IsDBNull(11))
+                                customer.Email = reader.GetString(11);
+
+                            result.Add(customer);
                         }
                     }
                 }
             }
 
-            return result;
+            var tsk = Task.FromResult(result);
+
+            return tsk;
         }
 
         public IList<Customer> GetRange(int offset, int limit)
