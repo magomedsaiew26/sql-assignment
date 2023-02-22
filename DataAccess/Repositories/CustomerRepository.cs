@@ -45,9 +45,9 @@ namespace DataAccess.Repositories
             }
         }
 
-        public Task<IList<Customer>> GetAll()
+        public ICollection<Customer> GetAll()
         {
-            IList<Customer> result = new List<Customer>();
+            ICollection<Customer> result = new List<Customer>();
 
             SelectQuery("SELECT * FROM Chinook.dbo.Customer;", (reader) =>
             {
@@ -75,12 +75,12 @@ namespace DataAccess.Repositories
                 return true;
             });
 
-            return Task.FromResult(result);
+            return result;
         }
 
-        public Task<IList<Customer>> GetRange(int offset, int limit)
+        public ICollection<Customer> GetRange(int offset, int limit)
         {
-            IList<Customer> result = new List<Customer>();
+            ICollection<Customer> result = new List<Customer>();
 
             SelectQuery($"SELECT * FROM Chinook.dbo.Customer ORDER BY CustomerId OFFSET {offset} ROWS FETCH NEXT {limit} ROWS ONLY;", (reader) =>
             {
@@ -108,12 +108,12 @@ namespace DataAccess.Repositories
                 return true;
             });
 
-            return Task.FromResult(result);
+            return result;
         }
 
-        public Task<Customer> Get(int id)
+        public Customer Get(int id)
         {
-            IList<Customer> result = new List<Customer>();
+            ICollection<Customer> result = new List<Customer>();
 
             SelectQuery($"SELECT * FROM Chinook.dbo.Customer WHERE CustomerId = {id};", (reader) =>
             {
@@ -146,14 +146,14 @@ namespace DataAccess.Repositories
             if (result.Count == 0)
             {
                 Console.WriteLine("No results!");
-                return Task.FromResult(default(Customer));
+                return default(Customer);
             }
-            return Task.FromResult(result[0]);
+            return result.First();
         }
 
-        public Task<IList<Customer>> Get(string name)
+        public ICollection<Customer> Get(string name)
         {
-            IList<Customer> result = new List<Customer>();
+            ICollection<Customer> result = new List<Customer>();
 
             SelectQuery($"SELECT * FROM Chinook.dbo.Customer WHERE FirstName LIKE '%{name}%' OR LastName LIKE '%{name}%';", (reader) =>
             {
@@ -181,7 +181,7 @@ namespace DataAccess.Repositories
                 return true;
             });
 
-            return Task.FromResult(result);
+            return result;
         }        
 
         public bool Add(Customer customer)
