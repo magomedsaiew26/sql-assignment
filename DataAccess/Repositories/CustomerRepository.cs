@@ -151,9 +151,37 @@ namespace DataAccess.Repositories
             return Task.FromResult(result[0]);
         }
 
-        public Customer Get(string name)
+        public Task<IList<Customer>> Get(string name)
         {
-            throw new NotImplementedException();
+            IList<Customer> result = new List<Customer>();
+
+            SelectQuery($"SELECT * FROM Chinook.dbo.Customer WHERE FirstName LIKE '%{name}%' OR LastName LIKE '%{name}%';", (reader) =>
+            {
+                while (reader.Read())
+                {
+                    var customer = new Customer
+                    {
+                        Id = reader.GetInt32(0),
+                        FirstName = reader.GetString(1),
+                        LastName = reader.GetString(2)
+                    };
+
+                    if (!reader.IsDBNull(7))
+                        customer.Country = reader.GetString(7);
+                    if (!reader.IsDBNull(8))
+                        customer.PostalCode = reader.GetString(8);
+                    if (!reader.IsDBNull(9))
+                        customer.Phonenumber = reader.GetString(9);
+                    if (!reader.IsDBNull(11))
+                        customer.Email = reader.GetString(11);
+
+                    result.Add(customer);
+                }
+
+                return true;
+            });
+
+            return Task.FromResult(result);
         }        
 
         public bool Add(Customer customer)
