@@ -225,19 +225,28 @@ namespace DataAccess.Repositories
 
                 StringBuilder sqlString = new StringBuilder("UPDATE Customer SET ");
 
-                sqlString.Append($"FirstName = {update.FirstName}");
-                sqlString.Append($"LastName = {update.LastName}");
-                sqlString.Append($"Country = {update.Country}");
-                sqlString.Append($"PostalCode = {update.PostalCode}");
-                sqlString.Append($"Phone = {update.Phonenumber}");
-                sqlString.Append($"Email = {update.Email}");
 
-                sqlString.Append($"WHERE CustomerId = {update.Id}");
+
+                if(update.FirstName != null && update.FirstName.Length > 0)
+                    sqlString.Append($"FirstName = '{update.FirstName}' ");
+                if (update.LastName != null && update.LastName.Length > 0)
+                    sqlString.Append($", LastName = '{update.LastName}' ");
+                if (update.Country != null && update.Country.Length > 0)
+                    sqlString.Append($", Country = '{update.Country}' ");
+                if (update.PostalCode != null && update.PostalCode.Length > 0)
+                    sqlString.Append($", PostalCode = '{update.PostalCode}' ");
+                if (update.Phonenumber != null && update.Phonenumber.Length > 0)
+                    sqlString.Append($", Phone = '{update.Phonenumber}' ");
+                if (update.Email != null && update.Email.Length > 0)
+                    sqlString.Append($", Email = '{update.Email}' ");
+
+                sqlString.Append($"WHERE CustomerId = {update.Id};");
 
 
                 using (SqlCommand command = connection.CreateCommand())
                 {
                     command.CommandText = sqlString.ToString(); //set command
+                    Console.WriteLine(sqlString.ToString());
 
                     // Insert the customer into the database 
                     IAsyncResult asyncres = command.BeginExecuteNonQuery(null, null);
