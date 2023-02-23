@@ -245,7 +245,7 @@ namespace DataAccess.Repositories
 
                     Console.WriteLine(command.CommandText);
 
-                    result = command.ExecuteNonQuery() == 1);
+                    result = command.ExecuteNonQuery() == 1;
                 }
 
                 connection.Close();
