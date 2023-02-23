@@ -26,56 +26,47 @@ namespace DataAccess.Repositories
             }
         }
 
-        private void SelectQuery(string query, System.Predicate<SqlDataReader> predicate)
-        {
-            //setup connection
-            using (SqlConnection connection = new SqlConnection(ConncectionString))
-            {
-                connection.Open();
-
-                //create command
-                using (SqlCommand command = connection.CreateCommand())
-                {
-                    command.CommandText = query; //set command
-
-                    //reads the result of the command
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        predicate?.Invoke(reader);
-                    }
-                }
-            }
-        }
-
         public ICollection<Customer> GetAll()
         {
             ICollection<Customer> result = new List<Customer>();
 
-            SelectQuery("SELECT * FROM Chinook.dbo.Customer;", (reader) =>
+            using (SqlConnection connection = new SqlConnection(ConncectionString))
             {
-                while (reader.Read())
+                connection.Open();
+
+                using (SqlCommand command = connection.CreateCommand())
                 {
-                    var customer = new Customer
+                    command.CommandText = "SELECT * FROM Chinook.dbo.Customer;";
+
+                    using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        Id = reader.GetInt32(0),
-                        FirstName = reader.GetString(1),
-                        LastName = reader.GetString(2)
-                    };
+                        while (reader.Read())
+                        {
+                            var customer = new Customer
+                            {
+                                Id = reader.GetInt32(0),
+                                FirstName = reader.GetString(1),
+                                LastName = reader.GetString(2)
+                            };
 
-                    if (!reader.IsDBNull(7))
-                        customer.Country = reader.GetString(7);
-                    if (!reader.IsDBNull(8))
-                        customer.PostalCode = reader.GetString(8);
-                    if (!reader.IsDBNull(9))
-                        customer.Phonenumber = reader.GetString(9);
-                    if (!reader.IsDBNull(11))
-                        customer.Email = reader.GetString(11);
+                            if (!reader.IsDBNull(7))
+                                customer.Country = reader.GetString(7);
+                            if (!reader.IsDBNull(8))
+                                customer.PostalCode = reader.GetString(8);
+                            if (!reader.IsDBNull(9))
+                                customer.Phone = reader.GetString(9);
+                            if (!reader.IsDBNull(11))
+                                customer.Email = reader.GetString(11);
 
-                    result.Add(customer);
+                            result.Add(customer);
+                        }
+
+                        reader.Close();
+                    }
                 }
 
-                return true;
-            });
+                connection.Close();
+            }
 
             return result;
         }
@@ -84,31 +75,48 @@ namespace DataAccess.Repositories
         {
             ICollection<Customer> result = new List<Customer>();
 
-            SelectQuery($"SELECT * FROM Chinook.dbo.Customer ORDER BY CustomerId OFFSET {offset} ROWS FETCH NEXT {limit} ROWS ONLY;", (reader) =>
+            using (SqlConnection connection = new SqlConnection(ConncectionString))
             {
-                while (reader.Read())
+                connection.Open();
+
+                string sqlString = "SELECT * FROM Chinook.dbo.Customer ORDER BY CustomerId OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY;";
+
+                //create command
+                using (SqlCommand command = connection.CreateCommand())
                 {
-                    var customer = new Customer
+                    command.CommandText = sqlString;
+                    command.Parameters.AddWithValue("@Offset", offset);
+                    command.Parameters.AddWithValue("@Limit", limit);
+
+                    using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        Id = reader.GetInt32(0),
-                        FirstName = reader.GetString(1),
-                        LastName = reader.GetString(2)
-                    };
+                        while(reader.Read())
+                        {
+                            var customer = new Customer
+                            {
+                                Id = reader.GetInt32(0),
+                                FirstName = reader.GetString(1),
+                                LastName = reader.GetString(2)
+                            };
 
-                    if (!reader.IsDBNull(7))
-                        customer.Country = reader.GetString(7);
-                    if (!reader.IsDBNull(8))
-                        customer.PostalCode = reader.GetString(8);
-                    if (!reader.IsDBNull(9))
-                        customer.Phonenumber = reader.GetString(9);
-                    if (!reader.IsDBNull(11))
-                        customer.Email = reader.GetString(11);
+                            if (!reader.IsDBNull(7))
+                                customer.Country = reader.GetString(7);
+                            if (!reader.IsDBNull(8))
+                                customer.PostalCode = reader.GetString(8);
+                            if (!reader.IsDBNull(9))
+                                customer.Phone = reader.GetString(9);
+                            if (!reader.IsDBNull(11))
+                                customer.Email = reader.GetString(11);
 
-                    result.Add(customer);
+                            result.Add(customer);
+                        }
+
+                        reader.Close();
+                    }
                 }
 
-                return true;
-            });
+                connection.Close();
+            }
 
             return result;
         }
@@ -117,39 +125,47 @@ namespace DataAccess.Repositories
         {
             ICollection<Customer> result = new List<Customer>();
 
-            SelectQuery($"SELECT * FROM Chinook.dbo.Customer WHERE CustomerId = {id};", (reader) =>
+            using (SqlConnection connection = new SqlConnection(ConncectionString))
             {
-                while (reader.Read())
+                connection.Open();
+
+                string sqlString = "SELECT * FROM Chinook.dbo.Customer WHERE CustomerId = @CustomerId;";
+
+                //create command
+                using (SqlCommand command = connection.CreateCommand())
                 {
-                    var customer = new Customer
-                    {
-                        Id = reader.GetInt32(0),
-                        FirstName = reader.GetString(1),
-                        LastName = reader.GetString(2)
-                    };
+                    command.CommandText = sqlString;
+                    command.Parameters.AddWithValue("@CustomerId", id);
 
-                    if (!reader.IsDBNull(7))
-                        customer.Country = reader.GetString(7);
-                    if (!reader.IsDBNull(8))
-                        customer.PostalCode = reader.GetString(8);
-                    if (!reader.IsDBNull(9))
-                        customer.Phonenumber = reader.GetString(9);
-                    if (!reader.IsDBNull(11))
-                        customer.Email = reader.GetString(11);
+                    using(SqlDataReader reader = command.ExecuteReader()) {
+                        while (reader.Read())
+                        {
+                            var customer = new Customer
+                            {
+                                Id = reader.GetInt32(0),
+                                FirstName = reader.GetString(1),
+                                LastName = reader.GetString(2)
+                            };
 
-                    result.Add(customer);
+                            if (!reader.IsDBNull(7))
+                                customer.Country = reader.GetString(7);
+                            if (!reader.IsDBNull(8))
+                                customer.PostalCode = reader.GetString(8);
+                            if (!reader.IsDBNull(9))
+                                customer.Phone = reader.GetString(9);
+                            if (!reader.IsDBNull(11))
+                                customer.Email = reader.GetString(11);
+
+                            result.Add(customer);
+                        }
+
+                        reader.Close();
+                    }
                 }
 
-                return true;
-            });
-
-            if (result.Count > 1)
-                Console.WriteLine("Recieved multiple results from a single id");
-            if (result.Count == 0)
-            {
-                Console.WriteLine("No results!");
-                return default(Customer);
+                connection.Close();
             }
+
             return result.First();
         }
 
@@ -157,65 +173,91 @@ namespace DataAccess.Repositories
         {
             ICollection<Customer> result = new List<Customer>();
 
-            SelectQuery($"SELECT * FROM Chinook.dbo.Customer WHERE FirstName LIKE '%{name}%' OR LastName LIKE '%{name}%';", (reader) =>
+            using (SqlConnection connection = new SqlConnection(ConncectionString))
             {
-                while (reader.Read())
+                connection.Open();
+
+                string sqlString = "SELECT * FROM Chinook.dbo.Customer WHERE FirstName LIKE @FirstName OR LastName LIKE @LastName;";
+
+                //create command
+                using (SqlCommand command = connection.CreateCommand())
                 {
-                    var customer = new Customer
+                    command.CommandText = sqlString; //set command
+                    command.Parameters.AddWithValue("@FirstName", "%" + name + "%");
+                    command.Parameters.AddWithValue("@LastName", "%" + name + "%");
+
+                    //reads the result of the command
+                    using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        Id = reader.GetInt32(0),
-                        FirstName = reader.GetString(1),
-                        LastName = reader.GetString(2)
-                    };
+                        while (reader.Read())
+                        {
+                            var customer = new Customer
+                            {
+                                Id = reader.GetInt32(0),
+                                FirstName = reader.GetString(1),
+                                LastName = reader.GetString(2)
+                            };
 
-                    if (!reader.IsDBNull(7))
-                        customer.Country = reader.GetString(7);
-                    if (!reader.IsDBNull(8))
-                        customer.PostalCode = reader.GetString(8);
-                    if (!reader.IsDBNull(9))
-                        customer.Phonenumber = reader.GetString(9);
-                    if (!reader.IsDBNull(11))
-                        customer.Email = reader.GetString(11);
+                            if (!reader.IsDBNull(7))
+                                customer.Country = reader.GetString(7);
+                            if (!reader.IsDBNull(8))
+                                customer.PostalCode = reader.GetString(8);
+                            if (!reader.IsDBNull(9))
+                                customer.Phone = reader.GetString(9);
+                            if (!reader.IsDBNull(11))
+                                customer.Email = reader.GetString(11);
 
-                    result.Add(customer);
+                            result.Add(customer);
+                        }
+
+                        reader.Close();
+                    }
                 }
 
-                return true;
-            });
+                connection.Close();
+            }
 
             return result;
         }
 
         public bool Add(Customer customer)
         {
+            bool result = false;
+
             using (SqlConnection connection = new SqlConnection(ConncectionString))
             {
                 connection.Open();
 
                 //
-                StringBuilder sqlString = new StringBuilder("INSERT INTO Customer(FirstName, LastName, Country, PostalCode, Phone, Email) VALUES(");
-                //create command
-
-                string p = "'{0}', '{1}', '{2}', '{3}', '{4}', '{5}') ";
-                string parameters = string.Format(p, customer.FirstName, customer.LastName, customer.Country, customer.PostalCode, customer.Phonenumber, customer.Email);
-                sqlString.Append(parameters);
+                string sqlString = "INSERT INTO Customer(FirstName, LastName, Country, PostalCode, Phone, Email) " +
+                    "VALUES(@FirstName, @LastName, @Country, @PostalCode, @Phone, @Email);";
 
                 using (SqlCommand command = connection.CreateCommand())
                 {
                     command.CommandText = sqlString.ToString(); //set command
 
-                    // Insert the customer into the database 
-                    IAsyncResult asyncres = command.BeginExecuteNonQuery(null, null);
-                    int result = command.EndExecuteNonQuery(asyncres);
-                    // 1 rows should beaffected
-                    return (result == 1);
+                    command.Parameters.AddWithValue("@FirstName", customer.FirstName);
+                    command.Parameters.AddWithValue("@LastName", customer.LastName);
+                    command.Parameters.AddWithValue("@Country", customer.Country);
+                    command.Parameters.AddWithValue("@PostalCode", customer.PostalCode);
+                    command.Parameters.AddWithValue("@Phone", customer.Phone);
+                    command.Parameters.AddWithValue("@Email", customer.Email);
 
+                    Console.WriteLine(command.CommandText);
+
+                    result = command.ExecuteNonQuery() == 1);
                 }
+
+                connection.Close();
             }
+
+            return result;
         }
 
         public bool Update(Customer update)
         {
+            bool success = false;
+
             // 6. Update an existing customer to the database
             using (SqlConnection connection = new SqlConnection(ConncectionString))
             {
@@ -223,39 +265,29 @@ namespace DataAccess.Repositories
 
                 // build command
 
-                StringBuilder sqlString = new StringBuilder("UPDATE Customer SET ");
-
-
-
-                if(update.FirstName != null && update.FirstName.Length > 0)
-                    sqlString.Append($"FirstName = '{update.FirstName}' ");
-                if (update.LastName != null && update.LastName.Length > 0)
-                    sqlString.Append($", LastName = '{update.LastName}' ");
-                if (update.Country != null && update.Country.Length > 0)
-                    sqlString.Append($", Country = '{update.Country}' ");
-                if (update.PostalCode != null && update.PostalCode.Length > 0)
-                    sqlString.Append($", PostalCode = '{update.PostalCode}' ");
-                if (update.Phonenumber != null && update.Phonenumber.Length > 0)
-                    sqlString.Append($", Phone = '{update.Phonenumber}' ");
-                if (update.Email != null && update.Email.Length > 0)
-                    sqlString.Append($", Email = '{update.Email}' ");
-
-                sqlString.Append($"WHERE CustomerId = {update.Id};");
-
+                string sqlString = "UPDATE Customer " +
+                    "SET FirstName = @FirstName, LastName = @LastName, Country = @Country, PostalCode = @PostalCode, Phone = @Phone, Email = @Email " +
+                    "WHERE CustomerId = @CustomerId;";
 
                 using (SqlCommand command = connection.CreateCommand())
                 {
                     command.CommandText = sqlString.ToString(); //set command
-                    Console.WriteLine(sqlString.ToString());
 
-                    // Insert the customer into the database 
-                    IAsyncResult asyncres = command.BeginExecuteNonQuery(null, null);
+                    command.Parameters.AddWithValue("@CustomerId", update.Id);
+                    command.Parameters.AddWithValue("@FirstName", update.FirstName);
+                    command.Parameters.AddWithValue("@LastName", update.LastName);
+                    command.Parameters.AddWithValue("@Country", update.Country);
+                    command.Parameters.AddWithValue("@PostalCode", update.PostalCode);
+                    command.Parameters.AddWithValue("@Phone", update.Phone);
+                    command.Parameters.AddWithValue("@EMail", update.Email);
 
-                    int result = command.EndExecuteNonQuery(asyncres);
-                    // 1 rows should be affected
-                    return (result == 1);
+                    success = (command.ExecuteNonQuery() == 1);
                 }
+
+                connection.Close();
             }
+
+            return success;
         }
 
         public ICollection<CustomerCountry> GetCustomerCountries()
@@ -286,8 +318,12 @@ namespace DataAccess.Repositories
                                 count = reader.GetInt32(1)
                             });
                         }
+
+                        reader.Close();
                     }
                 }
+
+                connection.Close();
             }
 
             return result;
@@ -324,10 +360,10 @@ namespace DataAccess.Repositories
                     reader.Close();
                 }
 
-                return result;
+                connection.Close();
             }
 
-
+            return result;
         }
 
         public CustomerGenre MostPopularGenre(int customerId)
@@ -348,31 +384,40 @@ namespace DataAccess.Repositories
                 "FROM Invoice i2 " +
                 "JOIN InvoiceLine il2 ON i2.InvoiceId = il2.InvoiceId " +
                 "JOIN Track t2 ON il2.TrackId = t2.TrackId " +
-                $"WHERE i2.CustomerId = {customerId} " +
+                $"WHERE i2.CustomerId = @CustomerId " +
                 "GROUP BY t2.GenreId " +
                 ") AS genre_counts " +
                 "); ";
 
             using (SqlConnection connection = new SqlConnection(ConncectionString))
             {
-                SqlCommand command = new SqlCommand(sqlQuery, connection);
                 connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
 
-                if (reader.Read()) { 
-                    result.firstname = reader.GetString(0);
-                    result.lastname = reader.GetString(1);
-                    result.genre = new List<string>();
-                    result.genre.Add(reader.GetString(2));
-                    result.count = reader.GetInt32(3);
-                }
-                
-                while(reader.Read())
+                using (SqlCommand command = new SqlCommand(sqlQuery, connection))
                 {
-                    result.genre.Add(reader.GetString(2));
+                    command.Parameters.AddWithValue("@CustomerId", customerId);
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            result.firstname = reader.GetString(0);
+                            result.lastname = reader.GetString(1);
+                            result.genre = new List<string>();
+                            result.genre.Add(reader.GetString(2));
+                            result.count = reader.GetInt32(3);
+                        }
+
+                        while (reader.Read())
+                        {
+                            result.genre.Add(reader.GetString(2));
+                        }
+
+                        reader.Close();
+                    }
                 }
 
-                reader.Close();
+                connection.Close();
             }
 
             return result;
