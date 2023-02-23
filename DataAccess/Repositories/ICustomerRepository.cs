@@ -8,6 +8,9 @@ public interface ICustomerRepository
     public Customer Get(int id);    
     public ICollection<Customer> Get(string name);    
     public bool Add(Customer customer);
-    public bool Update(int id, Customer updatedCustomer);
+    public bool Update(Customer update);
 
+    public ICollection<CustomerCountry> GetCustomerCountries();
+    public ICollection<CustomerSpender> GetHighestSpenders();
+    public CustomerGenre MostPopularGenre(int customerId);
 }

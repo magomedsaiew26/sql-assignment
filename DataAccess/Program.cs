@@ -5,10 +5,11 @@ using DataAccess.Repositories;
 async void dod()
 {
     CustomerRepository repo = new CustomerRepository();
-    var all = repo.GetAll();
+    var all = repo.MostPopularGenre(12);
 
-    foreach (var item in all)
-        Console.WriteLine(item);
+    Console.WriteLine(all);
+    foreach(var genre in all.genre)
+        Console.WriteLine(genre);
 }
 
 dod();
