@@ -2,14 +2,14 @@
 
 ## Project Description:
 
-The SQL Assignment project is a simple database application that demonstrates how to create and interact with a database using SQL queries. The project consists of a single SQL script file that creates a database and several tables to store customer information, along with a C# console application that interacts with the database using a Repository pattern.
+The SQL Assignment project is a simple database application that demonstrates how to create and interact with a database using SQL queries. The project consists of a single SQL script file that creates a database and several tables to store customer information, along with a C# console application that interacts with the database using a Repository pattern. You will be able to find the database diagram as well.
 
 ## Getting started
 
 To get started, you can simply clone this repository on your local machine using the command:
 git clone https://github.com/magomedsaiew26/sql-assignment.git
 
-#To run the application, use the following command:
+#To run the application, use the following command in the terminal:
 
 dotnet run
 
