@@ -9,10 +9,13 @@ namespace DataAccess.Repositories
 {
     public class CustomerRepository : ICustomerRepository
     {
-        //TODO: GetAll, Get, GetLimited, Delete, Update...
-
+        //Change this to your local server!
         private static string ServerName => "N-NO-01-01-1467\\SQLEXPRESS02";
         private static string DatabaseName = "Chinook";
+
+        /// <summary>
+        /// Gets a compllete connections-string
+        /// </summary>
         private static string ConncectionString
         {
             get
@@ -26,6 +29,10 @@ namespace DataAccess.Repositories
             }
         }
 
+        /// <summary>
+        /// Gets all rows in the customer table.
+        /// </summary>
+        /// <returns> A collection of all rows as customers</returns>
         public ICollection<Customer> GetAll()
         {
             ICollection<Customer> result = new List<Customer>();
@@ -71,6 +78,12 @@ namespace DataAccess.Repositories
             return result;
         }
 
+        /// <summary>
+        /// Gets a "page" or a range of customers starting from the offset, ending at offset + limit
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <param name="limit"></param>
+        /// <returns>A collection of all customers within range</returns>
         public ICollection<Customer> GetRange(int offset, int limit)
         {
             ICollection<Customer> result = new List<Customer>();
@@ -121,6 +134,11 @@ namespace DataAccess.Repositories
             return result;
         }
 
+        /// <summary>
+        /// Gets a single customer given an id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public Customer Get(int id)
         {
             ICollection<Customer> result = new List<Customer>();
@@ -169,6 +187,11 @@ namespace DataAccess.Repositories
             return result.First();
         }
 
+        /// <summary>
+        /// Gets potentially multiple customers, matching the name given.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns>All customers matching the name, or with similar fist/last-names </returns>
         public ICollection<Customer> Get(string name)
         {
             ICollection<Customer> result = new List<Customer>();
@@ -220,6 +243,11 @@ namespace DataAccess.Repositories
             return result;
         }
 
+        /// <summary>
+        /// Adds a customer to the customer table in the database.
+        /// </summary>
+        /// <param name="customer"> Customer to add </param>
+        /// <returns> True if success, false if not </returns>
         public bool Add(Customer customer)
         {
             bool result = false;
@@ -254,6 +282,11 @@ namespace DataAccess.Repositories
             return result;
         }
 
+        /// <summary>
+        /// Updates a customer in the customertable, matching at customerId = customerId
+        /// </summary>
+        /// <param name="update"> CustomerId as well as the updated values (must contain all properties) </param>
+        /// <returns> true if success, false if not </returns>
         public bool Update(Customer update)
         {
             bool success = false;
@@ -290,6 +323,10 @@ namespace DataAccess.Repositories
             return success;
         }
 
+        /// <summary>
+        /// Gets the countries where customers are from, ordered by most popular country to least
+        /// </summary>
+        /// <returns>Countries and customer count </returns>
         public ICollection<CustomerCountry> GetCustomerCountries()
         {
             // 7. Return the number of customers in each country, ordered high to low
@@ -329,6 +366,10 @@ namespace DataAccess.Repositories
             return result;
         }
 
+        /// <summary>
+        /// Gets the highest spending customers, ordered from highest to lowest
+        /// </summary>
+        /// <returns></returns>
         public ICollection<CustomerSpender> GetHighestSpenders()
         {
             IList<CustomerSpender> result = new List<CustomerSpender>();
@@ -366,6 +407,11 @@ namespace DataAccess.Repositories
             return result;
         }
 
+        /// <summary>
+        /// Gets the most popular genre(s) given a customerId
+        /// </summary>
+        /// <param name="customerId"> Id </param>
+        /// <returns>Customer name as well as genre(s) and the genre-count </returns>
         public CustomerGenre MostPopularGenre(int customerId)
         {
             // 9. For a given customer, return the most popular genre (genre with most tracks) 
